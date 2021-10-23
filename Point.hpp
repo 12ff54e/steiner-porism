@@ -4,23 +4,26 @@
 #include <iostream>
 
 template <unsigned n>
+using Coord = std::array<double, n>;
+
+template <unsigned n>
 class Point {
    private:
-    std::array<double, n> coords;
-    unsigned const _dim = n;
+    static unsigned const _dim = n;
+    Coord<n> _coords;
 
    public:
     template <typename... Ts>
-    Point(Ts... vals) : coords{vals...} {}
+    Point(Ts... vals) : _coords{vals...} {}
 
     unsigned dim() const { return _dim; }
 
     // element access
 
-    double& operator[](unsigned i) { return coords[i]; }
+    double& operator[](unsigned i) { return _coords[i]; }
 
-    auto begin() { return coords.begin(); }
-    auto end() { return coords.end(); }
+    auto begin() { return _coords.begin(); }
+    auto end() { return _coords.end(); }
 };
 
 template <typename... Ts>
