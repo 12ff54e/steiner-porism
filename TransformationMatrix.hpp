@@ -22,6 +22,9 @@ class TransformationMatrix {
     double& operator()(unsigned row, unsigned col) {
         return _mat_elems[row * _dim + col];
     }
+    double operator()(unsigned row, unsigned col) const {
+        return _mat_elems[row * _dim + col];
+    }
 
     Coord<n> operator*(Coord<n> coord) {
         unsigned last_row = _dim * (_dim - 1);
@@ -39,18 +42,29 @@ class TransformationMatrix {
         }
         return coord;
     }
-};
 
-template <unsigned n>
-TransformationMatrix<n> operator*(TransformationMatrix<n> t1,
-                                  TransformationMatrix<n> t2) {
-    TransformationMatrix<n> t{};
-    for (unsigned i = 0; i < t.dim(); ++i) {
-        for (unsigned j = 0; j < t.dim(); ++j) {
-            for (unsigned k = 0; k < t.dim(); ++k) {
-                t(i, j) += t1(i, k) * t2(k, j);
+    TransformationMatrix& operator*=(const TransformationMatrix& t) {
+        _mat_elems.back() = 0.;
+        for (unsigned i = 0; i < _dim - 1; ++i) {
+            for (unsigned j = 0, last_row = _dim * (_dim - 1); j < _dim;
+                 ++j, ++last_row) {
+                for (unsigned k = 0; k < _dim; ++k) {
+                    _mat_elems[last_row] += operator()(i, k) * t(k, j);
+                }
+            }
+
+            for (unsigned ind = i * _dim, last_row = _dim * (_dim - 1);
+                 ind < (i + 1) * _dim; ++ind, ++last_row) {
+                _mat_elems[ind] = std::exchange(_mat_elems[last_row], 0.);
             }
         }
+        _mat_elems.back() = 1.;
+        return *this;
     }
-    return t;
-}
+
+    friend TransformationMatrix operator*(TransformationMatrix t1,
+                                          const TransformationMatrix& t2) {
+        t1 *= t2;
+        return t1;
+    }
+};

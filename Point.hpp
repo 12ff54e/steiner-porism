@@ -7,9 +7,12 @@ template <unsigned n>
 using Coord = std::array<double, n>;
 
 template <unsigned n>
+class GeometricTransform;
+
+template <unsigned n>
 class Point {
    private:
-    static unsigned const _dim = n;
+    const static unsigned _dim = n;
     Coord<n> _coords;
 
    public:
@@ -24,6 +27,8 @@ class Point {
 
     auto begin() { return _coords.begin(); }
     auto end() { return _coords.end(); }
+
+    friend Point GeometricTransform<n>::operator()(Point);
 };
 
 template <typename... Ts>
