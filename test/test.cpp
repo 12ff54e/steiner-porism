@@ -4,30 +4,22 @@
 
 #include "../GeometricTransform.hpp"
 #include "../Point.hpp"
+#include "../util.hpp"
 
 using namespace std;
 int main() {
     Point pt{6., 2., 7.};
-    cout << "Components of " << pt.dim() << "D Point " << pt << " are:\n";
-    for (auto&& x : pt) { cout << x << '\n'; };
+    cout << "A " << pt.dim() << "D Point " << pt << "\n";
 
-    GeometricTransform<3> t1;
-    GeometricTransform<3> t2;
-    t1(0, 0) = 1.;
-    t1(1, 1) = 2.;
-    t1(2, 2) = 4.;
-    t1(3, 3) = 1.;
+    auto t1 = scalingTransform(1., 2., 4.);
+    auto t2 = translationTransform(3., 4., 5.);
 
-    t2(0, 0) = t2(1, 1) = t2(2, 2) = t2(3, 3) = 1.;
-    t2(0, 3) = 3.;
-    t2(1, 3) = 4.;
-    t2(2, 3) = 5.;
-
-    auto pp = t1(pt);
-    copy(pp.begin(), pp.end(), ostream_iterator<double>(cout, ", "));
+    cout << "...After scaling: ";
+    for (auto&& x : t1(pt)) { cout << x << ' '; };
     cout << '\n';
-    pp = t2(pt);
-    copy(pp.begin(), pp.end(), ostream_iterator<double>(cout, ", "));
+    cout << "...After translate-scale-translate transfrom: ";
+    for (auto&& x : composite(t2, t1, t2)(pt)) { cout << x << ' '; };
+    cout << '\n';
 
     return 0;
 }
