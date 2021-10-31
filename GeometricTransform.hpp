@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cmath>
 #include <utility>
 
 #include "Point.hpp"
@@ -77,4 +78,50 @@ auto translationTransform(Args... args) {
     matrix_fill(t, Indices{}, Indices{}, 1.);
     matrix_fill(t, Indices{}, ConstIndices{}, args...);
     return t;
+}
+
+template <unsigned axis>
+auto __basicRotationTransform3D(double t) {
+    GeometricTransform<3> rt{};
+    for (unsigned i = 0; i < 3; ++i) {
+        for (unsigned j = 0; j < 3; ++j) {
+            rt(i, j) =
+                kroneckerDelta(i, j) * ((1 - kroneckerDelta(axis, i)) * cos(t) +
+                                        kroneckerDelta(axis, i)) -
+                leviCivita(axis, i, j) * sin(t);
+        }
+    }
+    return rt;
+}
+
+/**
+ * @brief Rotation transform around given axis
+ *
+ * @param t
+ * @param axis
+ * @return GeometricTransform<3>
+ */
+auto rotationTransform3D(double t, Coord<3> axis) {
+    const double yaw = std::atan2(axis[1], axis[0]);
+    const double pitch = std::atan2(std::hypot(axis[0], axis[1]), axis[2]);
+
+    return composite(__basicRotationTransform3D<2>(yaw),
+                     __basicRotationTransform3D<1>(pitch),
+                     __basicRotationTransform3D<2>(t),
+                     __basicRotationTransform3D<1>(-pitch),
+                     __basicRotationTransform3D<2>(-yaw));
+}
+
+/**
+ * @brief Rotation transform by Euler angles
+ *
+ * @param yaw
+ * @param pitch
+ * @param rolling
+ * @return GeometricTransform<3>
+ */
+auto rotationTransform3D(double yaw, double pitch, double rolling) {
+    return composite(__basicRotationTransform3D<2>(yaw),
+                     __basicRotationTransform3D<1>(pitch),
+                     __basicRotationTransform3D<2>(rolling));
 }

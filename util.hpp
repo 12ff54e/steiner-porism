@@ -2,7 +2,7 @@
 
 #include <array>
 #include <cstddef>
-#include <type_traits>
+#include <tuple>
 #include <utility>
 
 template <typename T, std::size_t N, T C, T... Cs>
@@ -28,10 +28,10 @@ using const_index_sequence = const_integer_sequence<std::size_t, N, C>;
  */
 template <typename... Args>
 constexpr int leviCivita(Args... args) {
-    std::array<int, sizeof...(Args)> arr{args...};
+    std::array<unsigned, sizeof...(Args)> arr{args...};
     int lc = 1;
 
-    for (int i = 0; i < arr.size(); ++i) {
+    for (unsigned i = 0; i < arr.size(); ++i) {
         while (arr[i] != i) {
             if (arr[i] == arr[arr[i]]) { return 0; }
             int tmp = arr[i];
