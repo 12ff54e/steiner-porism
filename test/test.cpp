@@ -9,7 +9,7 @@
 
 using namespace std;
 int main() {
-    Point pt{6., 2., 7.};
+    constexpr Point pt{6., 2., 7.};
     cout << "A " << pt.dim() << "D Point " << pt << "\n";
 
     auto t1 = scalingTransform(1., 2., 4.);
@@ -43,6 +43,22 @@ int main() {
     cout << '\n';
     cout << "...After rotation {yaw:pi/3, pitch:pi/4, rolling:pi/6}: ";
     for (auto&& x : rt2(pt)) { cout << x << ' '; };
+    cout << '\n';
+
+    // Stereographic projection
+
+    auto ptn = static_cast<const decltype(pt)>(pt).normalize();
+    cout << "...Normalized: ";
+    for (auto&& x : ptn) { cout << x << ' '; }
+    cout << '\n';
+
+    auto pt2 = stereographicProjection<3>(ptn);
+
+    cout << "...Stereographic projection: ";
+    for (auto&& x : pt2) { cout << x << ' '; }
+    cout << '\n';
+    cout << "...And its invers: ";
+    for (auto&& x : stereographicProjection<3>(pt2)) { cout << x << ' '; }
     cout << '\n';
 
     return 0;

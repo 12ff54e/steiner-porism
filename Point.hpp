@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cmath>
 #include <iostream>
 
 template <unsigned n>
@@ -17,16 +18,39 @@ class Point {
 
    public:
     template <typename... Ts>
-    Point(Ts... vals) : _coords{vals...} {}
+    constexpr Point(Ts... vals) : _coords{vals...} {}
 
-    unsigned dim() const { return _dim; }
+    constexpr unsigned dim() const { return _dim; }
+
+    //
+
+    constexpr double norm() const {
+        double ss = 0;
+        for (auto&& x : _coords) { ss += x * x; }
+        return sqrt(ss);
+    }
+
+    constexpr Point& normalize() {
+        auto l2n = norm();
+        for (auto&& x : _coords) { x /= l2n; }
+        return *this;
+    }
+
+    constexpr Point normalize() const {
+        auto pt = *this;
+        pt.normalize();
+        return pt;
+    }
 
     // element access
 
-    double& operator[](unsigned i) { return _coords[i]; }
+    constexpr double& operator[](unsigned i) { return _coords[i]; }
+    constexpr double operator[](unsigned i) const { return _coords[i]; }
 
     auto begin() { return _coords.begin(); }
+    auto begin() const { return _coords.begin(); }
     auto end() { return _coords.end(); }
+    auto end() const { return _coords.end(); }
 
     friend Point GeometricTransform<n>::operator()(Point);
 };

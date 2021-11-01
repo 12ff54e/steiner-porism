@@ -5,6 +5,8 @@
 #include <tuple>
 #include <utility>
 
+#include "Point.hpp"
+
 template <typename T, std::size_t N, T C, T... Cs>
 struct const_integer_seq_impl : const_integer_seq_impl<T, N - 1, C, C, Cs...> {
 };
@@ -57,4 +59,40 @@ constexpr int leviCivita(Args... args) {
 template <typename T, typename... Args>
 constexpr bool kroneckerDelta(T v, Args... args) {
     return (... && (v == args));
+}
+
+/**
+ * @brief Stereographic projection from nD point on unit sphere to (n-1)D plane
+ *
+ * @tparam n
+ * @param pt
+ * @return Point<n-1>
+ */
+template <unsigned n>
+constexpr auto stereographicProjection(const Point<n>& pt) {
+    Point<n - 1> proj{};
+    const auto c = 1 / (1. - pt[n - 1]);
+    for (unsigned i = 0; i < proj.dim(); ++i) { proj[i] = c * pt[i]; }
+    return proj;
+}
+
+/**
+ * @brief Inverse stereographic projection from (n-1)D plane to nD point on unit
+ * sphere
+ *
+ * @tparam n
+ * @param pt
+ * @return Point<n>
+ */
+template <unsigned n>
+constexpr auto stereographicProjection(const Point<n - 1>& pt) {
+    double c = 1.;
+    for (auto&& x : pt) { c += x * x; }
+    c = 2. / c;
+
+    Point<n> proj;
+    for (unsigned i = 0; i < pt.dim(); ++i) { proj[i] = c * pt[i]; }
+    proj[n - 1] = 1 - c;
+
+    return proj;
 }
