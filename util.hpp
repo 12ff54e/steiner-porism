@@ -2,9 +2,9 @@
 
 #include <array>
 #include <cstddef>
-#include <tuple>
 #include <utility>
 
+#include "GeometricTransform.hpp"
 #include "Point.hpp"
 
 template <typename T, std::size_t N, T C, T... Cs>
@@ -95,4 +95,20 @@ constexpr auto stereographicProjection(const Point<n - 1>& pt) {
     proj[n - 1] = 1 - c;
 
     return proj;
+}
+
+auto circleThrough(const Point<2>& p1, const Point<2>& p2, const Point<2>& p3) {
+    const double d1x = p2[0] - p3[0], d2x = p3[0] - p1[0], d3x = p1[0] - p2[0];
+    const double d1y = p2[1] - p3[1], d2y = p3[1] - p1[1], d3y = p1[1] - p2[1];
+    const double denom_inv = 0.5 / (p1[0] * d1y + p2[0] * d2y + p3[0] * d3y);
+
+    const double x =
+        0.5 * (p1[0] + p2[0]) - d3y * (d1x * d2x + d1y * d2y) * denom_inv;
+    const double y =
+        0.5 * (p1[1] + p2[1]) + d3x * (d1x * d2x + d1y * d2y) * denom_inv;
+    const double r = sqrt((d1x * d1x + d1y * d1y) * (d2x * d2x + d2y * d2y) *
+                          (d3x * d3x + d3y * d3y)) *
+                     std::abs(denom_inv);
+
+    return std::make_pair(Point<2>{x, y}, r);
 }

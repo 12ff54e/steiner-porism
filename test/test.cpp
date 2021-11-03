@@ -61,5 +61,13 @@ int main() {
     for (auto&& x : stereographicProjection<3>(pt2)) { cout << x << ' '; }
     cout << '\n';
 
+    // find circle through 3 pts
+
+    Point<2> p1{0.5, 0.}, p2{-1., 0.}, p3{0., 3.};
+    auto circ = circleThrough(p1, p2, p3);
+    cout << "\nCircle through points " << p1 << ", " << p2 << ", " << p3
+         << ":\n";
+    cout << "  Center: " << circ.first << ", radius: " << circ.second << '\n';
+
     return 0;
 }
